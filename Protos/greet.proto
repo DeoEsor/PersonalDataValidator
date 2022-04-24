@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Validation.Mediator";
+
+package greet;
+
+message NSP {
+  string Name = 1;
+  string Surname = 2;
+  string Patronymic = 3;
+}
+
+message RecordValidationRequest {
+  NSP nsp = 1;
+  repeated string emails = 2;
+  repeated string phoneNumber = 3;
+  repeated string address = 4;
+  google.protobuf.Timestamp birthdat = 5;
+}
+
+message RecordsValidationRequest {
+  repeated RecordValidationRequest records = 1;
+  //sender = 2;
+}
+
+message StringValidationResult {
+	string value = 1;
+	bool is_valid = 2;
+}
+
+message TimestampValidationResult {
+	google.protobuf.Timestamp value = 1;
+	bool is_valid = 2;
+}
+
+message NSPValidationResult {
+	StringValidationResult Name = 1;
+	StringValidationResult Surname = 2;
+	StringValidationResult Patronymic = 3;
+}
+
+message RecordValidationResult {
+	NSPValidationResult nsp = 1;
+	repeated StringValidationResult emails = 2;
+	repeated StringValidationResult phoneNumber = 3;
+	repeated StringValidationResult address = 4;
+	TimestampValidationResult birthdat = 5;
+}
+
+message RecordsValidationResult {
+	repeated RecordsValidationResult records = 1;
+}
+
+service Greeter {
+  rpc Validate (RecordsValidationRequest) returns (RecordsValidationResult);
+}

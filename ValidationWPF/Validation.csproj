@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+		<LangVersion>preview</LangVersion>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net5.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Models\Models.csproj" />
+      <ProjectReference Include="..\Validation.Client.Proto\Validation.Client.Proto.csproj" />
+      <ProjectReference Include="..\WPF.MVVM\WPF.MVVM.csproj" />
+    </ItemGroup>
+
+</Project>
