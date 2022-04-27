@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Text;
 using System.Threading.Tasks;
 using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RabbitMQ.Client;
 using RabbitMQSender.Interfaces;
 
 namespace Validation.Mediator.Services
 {
-    public class MediatorService : Validation.Mediator.Mediator.MediatorBase
+    public class MediatorService : Mediator.MediatorBase
     {
         private readonly ILogger<MediatorService> _logger;
         private IRPCMQSender<NSPValidationRequest, NSPValidationReply> mqNsp;
