@@ -1,0 +1,13 @@
+﻿syntax = "proto3";
+
+import "Messages/MediatorMessages.proto";
+import "google/protobuf/timestamp.proto";
+
+
+option csharp_namespace = "Validation.Mediator";
+
+package Validator;
+
+service Mediator {
+  rpc Validate (RecordsValidationRequest) returns (RecordsValidationResult);
+}

@@ -1,6 +1,8 @@
 ﻿using Models;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -29,10 +31,24 @@ namespace Validation.ViewModels
 
         public Card Card { get; set; }
 
-        public MainViewModel(/*GreeterClient greeterClient*/)
+        public MainViewModel(GreeterClient greeterClient)
         {
-            _greeterClient = new GreeterClient();
+            _greeterClient = greeterClient;
 
+            Card = new Card
+            {
+                Name = "Вася",
+                Surname = "Пупкин",
+                Patronymic = "Петрович"
+            };
+
+            _addCommand = new Lazy<ICommand>(() => new RelayCommand(_ => Add()));
+            _startValidationCommand = new Lazy<ICommand>(() => new RelayCommand(
+                async _ => await StartValidationAsync()));
+        }
+
+        public MainViewModel()
+        {
             Card = new Card
             {
                 Name = "Вася",

@@ -1,0 +1,18 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Validation.Mediator";
+
+package Validator;
+
+message StringValidationResult {
+  string value = 1;
+  bool is_valid = 2;
+  optional string comment = 3;
+}
+
+message TimestampValidationResult {
+  google.protobuf.Timestamp value = 1;
+  bool is_valid = 2;
+}

@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+import "Messages/test_proto3_optional.proto";
+import "Messages/NSPMessages.proto";
+import "google/protobuf/timestamp.proto";
+
+
+option csharp_namespace = "Validation.Mediator";
+
+package Validator;
+
+message RecordValidationRequest {
+  NSP nsp = 1;
+  repeated string emails = 2;
+  repeated string phoneNumber = 3;
+  repeated string address = 4;
+  google.protobuf.Timestamp birthdate = 5;
+}
+
+message RecordsValidationRequest {
+  repeated RecordValidationRequest records = 1;
+  string sender_id = 2;
+}
+
+message RecordValidationResult {
+  NSPValidationResult nsp = 1;
+  repeated StringValidationResult emails = 2;
+  repeated StringValidationResult phoneNumber = 3;
+  repeated StringValidationResult address = 4;
+  TimestampValidationResult birthdate = 5;
+}
+
+message RecordsValidationResult {
+  repeated RecordValidationResult records = 1;
+}

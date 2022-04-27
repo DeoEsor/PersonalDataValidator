@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "Messages/BirthDayMessages.proto";
+import "google/protobuf/timestamp.proto";
+
+
+option csharp_namespace = "Validation.Mediator";
+
+package Validator;
+
+service BirthDayValidator {
+  rpc Validate (BirthDayValidationRequest) returns (BirthDayValidationReply);
+}

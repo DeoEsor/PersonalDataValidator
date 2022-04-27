@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "Messages/NSPMessages.proto";
+import "google/protobuf/timestamp.proto";
+
+
+option csharp_namespace = "Validation.Mediator";
+
+package Validator;
+
+service NSPValidator {
+  rpc Validate (NSPValidationRequest) returns (NSPValidationReply);
+}

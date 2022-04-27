@@ -14,11 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\DomeinModels\Models.csproj" />
   </ItemGroup>
 
 	<ItemGroup>
-		<Protobuf Include="..\Protos\greet.proto" GrpcServices="Client" />
+      <Protobuf Include="..\Protos\Messages\*.proto" ProtoRoot="..\Protos\" />
+      <Protobuf Include="..\Protos\Mediator.proto" GrpcServices="Client" ProtoRoot="..\Protos\" />
 	</ItemGroup>
 
 </Project>

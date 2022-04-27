@@ -1,0 +1,17 @@
+﻿syntax = "proto3";
+
+import "Messages/test_proto3_optional.proto";
+import "google/protobuf/timestamp.proto";
+
+
+option csharp_namespace = "Validation.Mediator";
+
+package Validator;
+
+message PhoneNumberValidationRequest {
+  string PhoneNumber = 1;
+}
+
+message PhoneNumberValidationReply {
+  StringValidationResult PhoneNumber = 1;
+}

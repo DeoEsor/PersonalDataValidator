@@ -9,7 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Models\Models.csproj" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\DomeinModels\Models.csproj" />
       <ProjectReference Include="..\Validation.Client.Proto\Validation.Client.Proto.csproj" />
       <ProjectReference Include="..\WPF.MVVM\WPF.MVVM.csproj" />
     </ItemGroup>

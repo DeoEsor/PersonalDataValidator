@@ -1,11 +1,11 @@
 ﻿using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
-using Models;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Models;
 using Validation.Mediator;
 
 namespace Validation.Client.Proto
@@ -18,7 +18,7 @@ namespace Validation.Client.Proto
 
         // TODO: Get GreeterClientSettings from DI/IoC impl
         private readonly ILogger<GreeterClient> _logger;
-        private readonly Greeter.GreeterClient _client;
+        //private readonly Greeter.GreeterClient _client;
 
         #endregion
 
@@ -26,6 +26,7 @@ namespace Validation.Client.Proto
 
         public GreeterClient(ILogger<GreeterClient> logger = null)
         {
+            /*
             _logger = logger;// ?? throw new ArgumentNullException(nameof(logger));
 
             var httpHandler = new HttpClientHandler();
@@ -41,6 +42,7 @@ namespace Validation.Client.Proto
                  });
 
             _client = new Greeter.GreeterClient(channel);
+            */
         }
 
         #endregion
@@ -49,6 +51,7 @@ namespace Validation.Client.Proto
 
         public async Task ValidateCardsAsync(IEnumerable<Card> cardsToValidate, CancellationToken token = default)
         {
+            /*
             try
             {
                 var request = new RecordsValidationRequest();
@@ -78,8 +81,9 @@ namespace Validation.Client.Proto
             }
             catch (Exception ex)
             {
-
+                // ignored
             }
+            */
         }
 
         #endregion

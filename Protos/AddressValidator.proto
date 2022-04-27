@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "Messages/AddressMessages.proto";
+import "google/protobuf/timestamp.proto";
+
+
+option csharp_namespace = "Validation.Mediator";
+
+package Validator;
+
+service AddressValidator {
+  rpc Validate (AddressValidationRequest) returns (AddressValidationReply);
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "Messages/EmailMessage.proto";
+import "google/protobuf/timestamp.proto";
+
+
+option csharp_namespace = "Validation.Mediator";
+
+package Validator;
+
+service EmailValidator {
+  rpc Validate (EmailValidationRequest) returns (EmailValidationReply);
+}

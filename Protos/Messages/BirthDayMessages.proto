@@ -1,0 +1,17 @@
+﻿syntax = "proto3";
+
+import "Messages/test_proto3_optional.proto";
+import "google/protobuf/timestamp.proto";
+
+
+option csharp_namespace = "Validation.Mediator";
+
+package Validator;
+
+message BirthDayValidationRequest {
+  google.protobuf.Timestamp BirthDay = 1;
+}
+
+message BirthDayValidationReply {
+  TimestampValidationResult BirthDay = 1;
+}

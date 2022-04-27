@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+import "Messages/test_proto3_optional.proto";
+import "google/protobuf/timestamp.proto";
+
+
+option csharp_namespace = "Validation.Mediator";
+
+package Validator;
+
+message NSP {
+  string name = 1;
+  string surname = 2;
+  string patronymic = 3;
+}
+
+message NSPValidationResult {
+  StringValidationResult Name = 1;
+  StringValidationResult Surname = 2;
+  StringValidationResult Patronymic = 3;
+}
+
+message NSPValidationRequest {
+  NSP nsp = 1;
+}
+
+message NSPValidationReply {
+  NSPValidationResult nsp = 1;
+}
