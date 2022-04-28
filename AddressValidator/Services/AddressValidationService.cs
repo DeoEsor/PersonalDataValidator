@@ -1,4 +1,6 @@
-﻿using Grpc.Core;
+﻿using System.Net.Mail;
+using Grpc.Core;
+using RabbitMQReceiver.Interfaces;
 using Validation.Mediator;
 using AddressValidatorGrpc = Validation.AddressValidator;
 using RabbitMQReceiver.RPCReceivers;
@@ -9,14 +11,24 @@ public class AddressValidationService : AddressValidatorGrpc.AddressValidatorBas
 {
     private readonly ILogger<AddressValidationService> _logger;
 
-    public AddressValidationService(ILogger<AddressValidationService> logger, IServiceProvider provider)
+    public AddressValidationService(ILogger<AddressValidationService> logger)
     {
-        provider.GetService<RpcReceiver<AddressValidationRequest, AddressValidationReply>>();
         _logger = logger;
     }
 
-    public override Task<AddressValidationReply> Validate(AddressValidationRequest request, ServerCallContext context)
+    public override Task<AddressValidationReplies> Validate(AddressValidationRequests request, ServerCallContext context)
     {
-        return Task.FromResult(new AddressValidationReply ());
+        try
+        {
+           
+            
+        }
+        catch (Exception e)
+        {
+            _logger.LogCritical($"Exception {e.Message}");
+            throw;
+        }
+
+        return null!;
     }
 }
