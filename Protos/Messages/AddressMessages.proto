@@ -9,9 +9,16 @@ option csharp_namespace = "Validation.Mediator";
 package Validator;
 
 message AddressValidationRequest {
-  string Email = 1;
+  string Address = 1;
+}
+message AddressValidationRequests {
+  repeated AddressValidationRequest Addresses = 1;
 }
 
 message AddressValidationReply {
   StringValidationResult Address = 1;
+}
+
+message AddressValidationReplies {
+  repeated AddressValidationReply Addresses = 1;
 }

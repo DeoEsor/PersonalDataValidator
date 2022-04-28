@@ -12,6 +12,14 @@ message EmailValidationRequest {
   string Email = 1;
 }
 
+message EmailValidationRequests {
+   repeated EmailValidationRequest Emails = 1;
+}
+
 message EmailValidationReply {
     StringValidationResult Email = 1;
+}
+
+message EmailValidationReplies {
+  repeated EmailValidationReply Emails = 1;
 }

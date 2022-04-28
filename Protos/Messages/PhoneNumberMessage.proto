@@ -12,6 +12,14 @@ message PhoneNumberValidationRequest {
   string PhoneNumber = 1;
 }
 
+message  PhoneNumberValidationRequests{
+  repeated PhoneNumberValidationRequest PhoneNumbers = 1;
+}
+
 message PhoneNumberValidationReply {
   StringValidationResult PhoneNumber = 1;
+}
+
+message  PhoneNumberValidationReplies{
+  repeated PhoneNumberValidationReply PhoneNumbers = 1;
 }

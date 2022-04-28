@@ -9,5 +9,5 @@ option csharp_namespace = "Validation";
 package Validator;
 
 service EmailValidator {
-  rpc Validate (EmailValidationRequest) returns (EmailValidationReply);
+  rpc Validate (EmailValidationRequests) returns (EmailValidationReplies);
 }
