@@ -4,5 +4,5 @@ namespace RabbitMQReceiver.Interfaces;
 
 public interface IMQRpcReceiver<TGet, TSend> : IMQReceiver, IDisposable
 { 
-    Func<TGet, TSend>? RPC { get; set; }
+    Func<TGet,CancellationToken, Task<TSend>>? RPC { get; set; }
 }
