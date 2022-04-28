@@ -13,7 +13,7 @@ public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> where TGet :
     public IModel Channel { get; init; }
     public IConnection Connection { get; init; }
     public AsyncEventingBasicConsumer Consumer { get; init; }
-    public Func<TGet, TSend>? RPC { get; set; }
+    public  Func<TGet,CancellationToken, Task<TSend>>? RPC { get; set; }
     public ILogger Logger { get; set; }
     
     ~RpcReceiver()
@@ -55,7 +55,7 @@ public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> where TGet :
         {
             var message = (object)Encoding.UTF8.GetString(body.ToArray()) as TGet;
             //Console.WriteLine(" [.] fib({0})", message);
-            response = await RpcCall(message!);
+            response = await RpcCalAsync(message!);
         }
         catch (Exception e)
         {
@@ -71,11 +71,11 @@ public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> where TGet :
         }
     }
 
-    private Task<TSend> RpcCall(TGet message)
+    private async Task<TSend> RpcCalAsync(TGet message, CancellationToken token = default)
     {
         if (RPC == null)
             throw new RuntimeBinderException("RPC callback not linked");
-        return Task.FromResult(RPC.Invoke(message));
+        return await RPC.Invoke(message, token);
     }
 
     public void Dispose()
