@@ -20,7 +20,7 @@ namespace Validation.ViewModels
             get => cards;
         }
 
-        private GreeterClient _greeterClient;
+        private Validation.Client.Proto.MediatorClient _mediatorClient;
 
         private Lazy<ICommand> _addCommand;
         private Lazy<ICommand> _startValidationCommand;
@@ -31,24 +31,10 @@ namespace Validation.ViewModels
 
         public Card Card { get; set; }
 
-        public MainViewModel(GreeterClient greeterClient)
-        {
-            _greeterClient = greeterClient;
-
-            Card = new Card
-            {
-                Name = "Вася",
-                Surname = "Пупкин",
-                Patronymic = "Петрович"
-            };
-
-            _addCommand = new Lazy<ICommand>(() => new RelayCommand(_ => Add()));
-            _startValidationCommand = new Lazy<ICommand>(() => new RelayCommand(
-                async _ => await StartValidationAsync()));
-        }
-
         public MainViewModel()
         {
+            _mediatorClient = new MediatorClient(null);
+
             Card = new Card
             {
                 Name = "Вася",
@@ -68,7 +54,7 @@ namespace Validation.ViewModels
 
         private async Task StartValidationAsync()
         {
-            await _greeterClient.ValidateCardsAsync(Cards);
+            await _mediatorClient.ValidateCardsAsync(Cards);
         }
     }
 }

@@ -11,22 +11,19 @@ using Validation.Mediator;
 namespace Validation.Client.Proto
 {
 
-    public sealed class GreeterClient
+    public sealed class MediatorClient
     {
 
         #region Fields
-
-        // TODO: Get GreeterClientSettings from DI/IoC impl
-        private readonly ILogger<GreeterClient> _logger;
-        //private readonly Greeter.GreeterClient _client;
+        private readonly ILogger<MediatorClient> _logger;
+        private readonly Validation.Mediator.Mediator.MediatorClient _client;
 
         #endregion
 
         #region Constructors
 
-        public GreeterClient(ILogger<GreeterClient> logger = null)
+        public MediatorClient(ILogger<MediatorClient> logger = null)
         {
-            /*
             _logger = logger;// ?? throw new ArgumentNullException(nameof(logger));
 
             var httpHandler = new HttpClientHandler();
@@ -41,8 +38,7 @@ namespace Validation.Client.Proto
                      HttpHandler = httpHandler
                  });
 
-            _client = new Greeter.GreeterClient(channel);
-            */
+            _client = new Validation.Mediator.Mediator.MediatorClient(channel);
         }
 
         #endregion
@@ -51,7 +47,6 @@ namespace Validation.Client.Proto
 
         public async Task ValidateCardsAsync(IEnumerable<Card> cardsToValidate, CancellationToken token = default)
         {
-            /*
             try
             {
                 var request = new RecordsValidationRequest();
@@ -67,7 +62,7 @@ namespace Validation.Client.Proto
                             Surname = card.Surname,
                             Patronymic = card.Patronymic
                         },
-                        Birthdat = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(card.BirthDay.ToUniversalTime())
+                        Birthdate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(card.BirthDay.ToUniversalTime())
                     };
 
                     cardRequest.Address.AddRange(card.Address);
@@ -78,12 +73,13 @@ namespace Validation.Client.Proto
                 }
 
                 var response = await _client.ValidateAsync(request, new Grpc.Core.CallOptions(cancellationToken: token));
+                if (response == null)
+                    _logger?.LogInformation($"Response in null");
             }
             catch (Exception ex)
             {
                 // ignored
             }
-            */
         }
 
         #endregion

@@ -1,24 +1,24 @@
 ﻿using Grpc.Net.Client;
 using RabbitMQReceiver.Interfaces;
+using RabbitMQReceiver.RPCReceivers;
 using Validation.Mediator;
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 
 namespace EmailValidator.Services;
 
 //TODO : Refactor RequestReceivers to Generic
-public class AddressValidatorRequestReceiver
+public class EmailValidatorRequestReciver
 {
-    private readonly ILogger<AddressValidatorRequestReceiver> _logger;
+    private readonly ILogger<EmailValidatorRequestReciver> _logger;
 
     private readonly Validation.EmailValidator.EmailValidatorClient _client;
 
     private readonly IMQRpcReceiver<EmailValidationRequests, EmailValidationReplies> _mqRpcReceiver;
 
-    public AddressValidatorRequestReceiver(ILogger<AddressValidatorRequestReceiver> logger, 
-                                            IMQRpcReceiver<EmailValidationRequests, EmailValidationReplies> mqRpcReceiver)
+    public EmailValidatorRequestReciver(ILogger<EmailValidatorRequestReciver> logger)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _mqRpcReceiver = mqRpcReceiver ?? throw new ArgumentNullException(nameof(mqRpcReceiver));
+        _mqRpcReceiver = new RpcReceiver<EmailValidationRequests, EmailValidationReplies>();
 
         var httpHandler = new HttpClientHandler();
 

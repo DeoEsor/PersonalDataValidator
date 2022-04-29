@@ -9,5 +9,5 @@ option csharp_namespace = "Validation";
 package Validator;
 
 service PhoneNumberValidator {
-  rpc Validate (PhoneNumberValidationRequest) returns (PhoneNumberValidationReply);
+  rpc Validate (PhoneNumberValidationRequests) returns (PhoneNumberValidationReplies);
 }

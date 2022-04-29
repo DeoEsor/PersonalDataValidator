@@ -1,5 +1,6 @@
 ﻿using Grpc.Net.Client;
 using RabbitMQReceiver.Interfaces;
+using RabbitMQReceiver.RPCReceivers;
 using Validation.Mediator;
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 
@@ -14,10 +15,10 @@ public class BirthDayValidatorRequestReceiver
     private readonly IMQRpcReceiver<BirthDayValidationRequest, BirthDayValidationReply> _mqRpcReceiver;
 
     public BirthDayValidatorRequestReceiver(ILogger<BirthDayValidatorRequestReceiver> logger, 
-                                            IMQRpcReceiver<BirthDayValidationRequest, BirthDayValidationReply> mqRpcReceiver)
+                                            IMQRpcReceiver<BirthDayValidationRequest, BirthDayValidationReply> mqRpcReceiver = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _mqRpcReceiver = mqRpcReceiver ?? throw new ArgumentNullException(nameof(mqRpcReceiver));
+        _mqRpcReceiver = mqRpcReceiver ?? new RpcReceiver<BirthDayValidationRequest, BirthDayValidationReply>();
 
         var httpHandler = new HttpClientHandler();
 

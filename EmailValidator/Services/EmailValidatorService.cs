@@ -1,4 +1,5 @@
 ﻿using System.Net.Mail;
+using Google.Protobuf.Collections;
 using Grpc.Core;
 using Validation.Mediator;
 
@@ -18,8 +19,10 @@ public class EmailValidatorService : Validation.EmailValidator.EmailValidatorBas
         try
         {
             var reply = new EmailValidationReplies();
-            foreach (var email in request.Emails)
-                reply.Emails.Add(Validate(email));
+
+            var repliesArray = new EmailValidationReply[request.Emails.Count];
+
+            Parallel.For(0, request.Emails.Count, i=> repliesArray[i] = Validate(request.Emails[i]));
 
             return reply;
         }
@@ -41,8 +44,8 @@ public class EmailValidatorService : Validation.EmailValidator.EmailValidatorBas
             emailValidationResult.IsValid = false; // suggested by @TK-421
         try
         {
-            var addr = new MailAddress(email.Email);
-            emailValidationResult.IsValid = addr.Address == trimmedEmail;
+            var mailAddress = new MailAddress(email.Email);
+            emailValidationResult.IsValid = mailAddress.Address == trimmedEmail;
         }
         catch (Exception exception)
         {

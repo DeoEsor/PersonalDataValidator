@@ -1,5 +1,6 @@
 ﻿using Grpc.Net.Client;
 using RabbitMQReceiver.Interfaces;
+using RabbitMQReceiver.RPCReceivers;
 using Validation.Mediator;
 
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
@@ -16,10 +17,10 @@ public class NSPValidatorRequestReceiver
     private readonly IMQRpcReceiver<NSPValidationRequest, NSPValidationReply> _mqRpcReceiver;
 
     public NSPValidatorRequestReceiver(ILogger<NSPValidatorRequestReceiver> logger, 
-                                            IMQRpcReceiver<NSPValidationRequest, NSPValidationReply> mqRpcReceiver)
+                                            IMQRpcReceiver<NSPValidationRequest, NSPValidationReply> mqRpcReceiver = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _mqRpcReceiver = mqRpcReceiver ?? throw new ArgumentNullException(nameof(mqRpcReceiver));
+        _mqRpcReceiver = mqRpcReceiver ?? new RpcReceiver<NSPValidationRequest, NSPValidationReply>();
 
         var httpHandler = new HttpClientHandler();
 

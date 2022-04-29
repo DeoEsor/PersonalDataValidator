@@ -1,12 +1,13 @@
 ﻿// ReSharper disable InconsistentNaming
 
 using System.Collections.Concurrent;
+using Google.Protobuf;
 
 namespace RabbitMQSender.Interfaces;
 
 public interface IRPCMQSender<TSend, TGet> : IMQSender
-    where TGet : class
-    where TSend : class
+    where TGet : IMessage
+    where TSend : IMessage
 {
     public ConcurrentDictionary<string, TaskCompletionSource<TGet>> CallbackMapper { get; init; }
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RabbitMQSender.Interfaces;
+using RabbitMQSender.Sender;
 using Validation.Mediator.Services;
 
 namespace Validation.Mediator
@@ -13,11 +14,17 @@ namespace Validation.Mediator
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddGrpc();
-            services.AddSingleton<IRPCMQSender<NSPValidationRequest, NSPValidationReply>>();
-            services.AddSingleton<IRPCMQSender<AddressValidationRequest, AddressValidationReply>>();
-            services.AddSingleton<IRPCMQSender<EmailValidationRequest, EmailValidationReply>>();
-            services.AddSingleton<IRPCMQSender<PhoneNumberValidationRequest, PhoneNumberValidationReply>>();
-            services.AddSingleton<IRPCMQSender<BirthDayValidationRequest, BirthDayValidationReply>>();
+            services.AddTransient<IRPCMQSender<NSPValidationRequest, NSPValidationReply>,
+                MqRpcSender<NSPValidationRequest, NSPValidationReply>>();
+            services.AddTransient<IRPCMQSender<AddressValidationRequests, AddressValidationReplies>,
+                MqRpcSender<AddressValidationRequests, AddressValidationReplies>>();
+            services.AddTransient<IRPCMQSender<EmailValidationRequests, EmailValidationReplies>,
+                MqRpcSender<EmailValidationRequests, EmailValidationReplies>>();
+            services.AddTransient<IRPCMQSender<PhoneNumberValidationRequests, PhoneNumberValidationReplies>,
+                MqRpcSender<PhoneNumberValidationRequests, PhoneNumberValidationReplies>>();
+            services.AddTransient<IRPCMQSender<BirthDayValidationRequest, BirthDayValidationReply>,
+                MqRpcSender<BirthDayValidationRequest, BirthDayValidationReply>>();
+            
             services.AddSingleton<MediatorService>();
         }
 
@@ -26,6 +33,7 @@ namespace Validation.Mediator
         {
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
+            
 
             app.UseRouting();
 

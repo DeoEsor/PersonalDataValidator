@@ -2,24 +2,25 @@
 using RabbitMQReceiver.Interfaces;
 using RabbitMQReceiver.RPCReceivers;
 using Validation.Mediator;
-using AddressValidatorGrpc = Validation.AddressValidator;
+
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 
-namespace AddressValidator.Services;
+namespace PhoneNumberValidator.Services;
 
-public class AddressValidatorRequestReceiver
+//TODO : Refactor RequestReceivers to Generic
+public class PhoneNumberValidatorRequestReceiver
 {
-    private readonly ILogger<AddressValidatorRequestReceiver> _logger;
+    private readonly ILogger<PhoneNumberValidatorRequestReceiver> _logger;
 
-    private readonly AddressValidatorGrpc.AddressValidatorClient _client;
+    private readonly Validation.PhoneNumberValidator.PhoneNumberValidatorClient _client;
 
-    private readonly IMQRpcReceiver<AddressValidationRequests, AddressValidationReplies> _mqRpcReceiver;
+    private readonly IMQRpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies> _mqRpcReceiver;
 
-    public AddressValidatorRequestReceiver(ILogger<AddressValidatorRequestReceiver> logger, 
-                                            IMQRpcReceiver<AddressValidationRequests, AddressValidationReplies> mqRpcReceiver = null)
+    public PhoneNumberValidatorRequestReceiver(ILogger<PhoneNumberValidatorRequestReceiver> logger, 
+                                            IMQRpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies> mqRpcReceiver = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _mqRpcReceiver = mqRpcReceiver ?? new RpcReceiver<AddressValidationRequests, AddressValidationReplies>();
+        _mqRpcReceiver = mqRpcReceiver ?? new RpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies>();
 
         var httpHandler = new HttpClientHandler();
 
@@ -33,11 +34,11 @@ public class AddressValidatorRequestReceiver
                 HttpHandler = httpHandler
             });
 
-        _client = new AddressValidatorGrpc.AddressValidatorClient(channel);
+        _client = new Validation.PhoneNumberValidator.PhoneNumberValidatorClient(channel);
         _mqRpcReceiver.RPC = ValidateAddressAsync;
     }
     
-    private async Task<AddressValidationReplies> ValidateAddressAsync(AddressValidationRequests request, CancellationToken token = default)
+    private async Task<PhoneNumberValidationReplies> ValidateAddressAsync(PhoneNumberValidationRequests request, CancellationToken token = default)
     {
         try
         {

@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddGrpc();
-//builder.Services.AddScoped<IMQRpcReceiver<AddressValidationRequest, AddressValidationReply>,RpcReceiver<AddressValidationRequest, AddressValidationReply>>();
+builder.Services.AddSingleton<AddressValidatorRequestReceiver>();
 
 var app = builder.Build();
 

@@ -7,18 +7,22 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
       <PackageReference Include="RabbitMQ.Client" Version="6.2.4" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="RPCSender" />
+        <PackageReference Include="Google.Protobuf" Version="3.20.1" />
+        <PackageReference Include="Grpc.Net.Client" Version="2.45.0" />
+        <PackageReference Include="Grpc.Tools" Version="2.45.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=7.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-        <HintPath>..\..\..\..\.nuget\packages\microsoft.extensions.configuration.abstractions\7.0.0-preview.3.22175.4\lib\net6.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
-      </Reference>
+      <Folder Include="RPCSender" />
     </ItemGroup>
 
 </Project>

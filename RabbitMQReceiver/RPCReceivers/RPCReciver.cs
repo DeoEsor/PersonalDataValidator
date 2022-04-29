@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Unicode;
 using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -21,12 +22,12 @@ public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> where TGet :
         Close();
     }
 
-    public RpcReceiver(IConfiguration configuration, ILogger logger)
+    public RpcReceiver(IConfiguration configuration = null, ILogger logger = null)
     {
         Logger = logger;
         var factory = new ConnectionFactory()
         {
-            HostName = configuration.GetSection("HostName").Value,
+            HostName = configuration.GetSection("HostName").Value ?? "localhost",
             DispatchConsumersAsync = true
         };
 
@@ -39,7 +40,7 @@ public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> where TGet :
         Consumer = new AsyncEventingBasicConsumer(Channel);
         Consumer.Received += OnReceived;
 
-        Channel.BasicConsume(configuration.GetSection("QueueName").Value, false, Consumer);
+        Channel.BasicConsume(configuration.GetSection("QueueName").Value ?? "rpc_queqe", false, Consumer);
     }
 
     private async Task OnReceived(object model, BasicDeliverEventArgs ea)
@@ -51,10 +52,10 @@ public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> where TGet :
         var replyProps = Channel.CreateBasicProperties();
         replyProps.CorrelationId = props.CorrelationId;
 
+        Console.WriteLine($"[] Recived {model}");
         try
         {
             var message = (object)Encoding.UTF8.GetString(body.ToArray()) as TGet;
-            //Console.WriteLine(" [.] fib({0})", message);
             response = await RpcCalAsync(message!);
         }
         catch (Exception e)

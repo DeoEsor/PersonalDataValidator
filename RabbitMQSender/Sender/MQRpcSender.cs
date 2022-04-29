@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
+using Google.Protobuf;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
@@ -9,8 +10,9 @@ using RabbitMQSender.Interfaces;
 namespace RabbitMQSender.Sender
 {
     public class MqRpcSender<TSend, TGet> : IRPCMQSender<TSend, TGet>
-        where TGet : class
-        where TSend : class
+        where TGet : IMessage<TGet>, new()
+        where TSend : IMessage<TSend>
+        
     {
         public ILogger Logger { get; set; }
         public IConnection Connection { get; init; }
@@ -25,10 +27,10 @@ namespace RabbitMQSender.Sender
 
         public event Action<TGet>? Recived;
 
-        public MqRpcSender(IConfiguration configuration, ILogger logger)
+        public MqRpcSender(IConfiguration configuration, ILogger logger = null)
         {
             Logger = logger;
-            var factory = new ConnectionFactory() {HostName = "localhost"};
+            var factory = new ConnectionFactory {HostName = "localhost", Port = 15672};
 
             Connection = factory.CreateConnection();
             Channel = Connection.CreateModel();
@@ -40,7 +42,7 @@ namespace RabbitMQSender.Sender
 
         public Task<TGet> CallAsync(TSend message, CancellationToken cancellationToken = default)
         {
-            Console.WriteLine(" [x] Requesting fib({0})", message);
+            Logger?.LogInformation($" [x] Requesting {Channel.DefaultConsumer.Model} : ({0})", message);
             
             var correlationId = Guid.NewGuid().ToString();
             var tcs = new TaskCompletionSource<TGet>();
@@ -49,8 +51,8 @@ namespace RabbitMQSender.Sender
             var props = Channel.CreateBasicProperties();
             props.CorrelationId = correlationId;
             props.ReplyTo = ReplyQueueName;
-            
-            var messageBytes = Encoding.UTF8.GetBytes(message.ToString());
+
+            var messageBytes = message.ToByteArray();
             Channel.BasicPublish("", queueName, props, messageBytes);
             Channel.BasicConsume(consumer: Consumer, queue: ReplyQueueName, autoAck: true);
 
@@ -62,6 +64,7 @@ namespace RabbitMQSender.Sender
 
         private void OnReceived(object model, BasicDeliverEventArgs ea)
         {
+            Console.WriteLine($"Getted {ea.Body}");
             var suchTaskExists = CallbackMapper
                 .TryRemove(ea.BasicProperties.CorrelationId, out var tcs);
             
@@ -73,7 +76,8 @@ namespace RabbitMQSender.Sender
         private TGet OnConfirmedReceived(object model, BasicDeliverEventArgs ea)
         {
             var body = ea.Body;
-            TGet response = (object)body.ToArray() as TGet;
+            var a = new Google.Protobuf.MessageParser<TGet>(() => new TGet());
+            var response = a.ParseFrom(ea.Body.ToArray());
 
             Console.WriteLine(" [.] Got '{0}'", response);
             Recived?.Invoke(response);

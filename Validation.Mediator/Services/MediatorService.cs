@@ -8,6 +8,7 @@ using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RabbitMQSender.Interfaces;
+using RabbitMQSender.Sender;
 
 namespace Validation.Mediator.Services
 {
@@ -24,85 +25,80 @@ namespace Validation.Mediator.Services
         {
             _logger = logger;
             mqNsp = provider
-                .GetService<IRPCMQSender<NSPValidationRequest, NSPValidationReply>>();
+                .GetService<IRPCMQSender<NSPValidationRequest, NSPValidationReply>>()
+                ?? new MqRpcSender<NSPValidationRequest, NSPValidationReply>(null!, logger);
             
             mqAddress = provider
-                .GetService<IRPCMQSender<AddressValidationRequests, AddressValidationReplies>>();
+                .GetService<IRPCMQSender<AddressValidationRequests, AddressValidationReplies>>()
+                        ?? new MqRpcSender<AddressValidationRequests, AddressValidationReplies>(null!, logger);
             
             mqEmail = provider
-                .GetService<IRPCMQSender<EmailValidationRequests, EmailValidationReplies>>();
+                .GetService<IRPCMQSender<EmailValidationRequests, EmailValidationReplies>>()
+                      ?? new MqRpcSender<EmailValidationRequests, EmailValidationReplies>(null!, logger);
             
             mqPhone = provider
-                .GetService<IRPCMQSender<PhoneNumberValidationRequests, PhoneNumberValidationReplies>>();
+                .GetService<IRPCMQSender<PhoneNumberValidationRequests, PhoneNumberValidationReplies>>()
+                      ?? new MqRpcSender<PhoneNumberValidationRequests, PhoneNumberValidationReplies>(null!, logger);
             
             mqBirthDay = provider
-                .GetService<IRPCMQSender<BirthDayValidationRequest, BirthDayValidationReply>>();
+                .GetService<IRPCMQSender<BirthDayValidationRequest, BirthDayValidationReply>>()
+                         ?? new MqRpcSender<BirthDayValidationRequest, BirthDayValidationReply>(null!, logger);
         }
 
-        public override Task<RecordsValidationResult> Validate(RecordsValidationRequest request, ServerCallContext context)
+        public override async Task<RecordsValidationResult> Validate(RecordsValidationRequest request, ServerCallContext context)
         {
-            var repliesList = request
-                .Records
-                .Select(recordValidationRequest => Validate(recordValidationRequest, context.CancellationToken).Result)
-                .ToList();
+            var repliesList = new List<Task<RecordValidationResult>>();
+            foreach (var requestRecord in request.Records)
+                repliesList.Add(Validate(requestRecord, context.CancellationToken));
 
-            var result = new RecordsValidationResult
-            {
-                Records =
-                {
-                    repliesList
-                }
-            };
+            Task.WaitAll(repliesList.ToArray());
+
+            var result = new RecordsValidationResult();
+
+            foreach (var reply in repliesList)
+                result.Records.Add(reply.Result);
             
-            return Task.FromResult(result);
+            return result;
         }
 
         private async Task<RecordValidationResult> Validate(RecordValidationRequest request, CancellationToken token)
         {
-            var tasksList = new List<Task>();
             var nspValidationRequest = new NSPValidationRequest
             {
                 Nsp = request.Nsp
             };
             
-            var nspTask = mqNsp.CallAsync(nspValidationRequest, token);
-            tasksList.Add(nspTask);
+            var nspTask = await mqNsp.CallAsync(nspValidationRequest, token);
 
             var BDValidationRequest = new BirthDayValidationRequest()
             {
                 BirthDay = request.Birthdate
             };
             
-            var bdTask = mqBirthDay.CallAsync(BDValidationRequest, token);
-            tasksList.Add(bdTask);
+            var bdTask = await mqBirthDay.CallAsync(BDValidationRequest, token);
 
-            var emailTask = EmailTask(request, token);
-            tasksList.Add(emailTask);
+            var emailTask = await EmailTask(request, token);
             
-            var phoneTask = PhonesTask(request, token);
-            tasksList.Add(phoneTask);
+            var phoneTask = await PhonesTask(request, token);
             
-            var addressTask = AddressTask(request, token);
-            tasksList.Add(addressTask);
-            
-            Task.WaitAll(tasksList.ToArray());
+            var addressTask = await AddressTask(request, token);
 
 
             var emails = emailTask
-                .Result.Emails
+                .Emails
                 .Select(email => email.Email)
                 .ToList();
             
             var phoneNumbers = phoneTask
-                .Result.PhoneNumbers
+                .PhoneNumbers
                 .Select(p => p.PhoneNumber)
                 .ToList();
             var addresses = addressTask
-                .Result.Addresses.
+                .Addresses.
                 Select(address => address.Address)
                 .ToList();
 
-            return Build(nspTask.Result.Nsp, bdTask.Result.BirthDay, addresses, emails, phoneNumbers);
+            return Build(nspTask.Nsp, bdTask.BirthDay, addresses, emails, phoneNumbers);
         }
 
         private RecordValidationResult Build(NSPValidationResult NSP, 

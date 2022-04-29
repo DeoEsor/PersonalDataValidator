@@ -1,4 +1,6 @@
+using AddressValidator.Services;
 using BirthDayValidator.Services;
+using Validation.Mediator;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddGrpc();
+builder.Services.AddSingleton<BirthDayValidatorRequestReceiver>();
 
 var app = builder.Build();
 
