@@ -15,10 +15,10 @@ public class BirthDayValidatorRequestReceiver
     private readonly IMQRpcReceiver<BirthDayValidationRequest, BirthDayValidationReply> _mqRpcReceiver;
 
     public BirthDayValidatorRequestReceiver(ILogger<BirthDayValidatorRequestReceiver> logger, 
-                                            IMQRpcReceiver<BirthDayValidationRequest, BirthDayValidationReply> mqRpcReceiver = null)
+                                            IMQRpcReceiver<BirthDayValidationRequest, BirthDayValidationReply> mqRpcReceiver )
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _mqRpcReceiver = mqRpcReceiver ?? new RpcReceiver<BirthDayValidationRequest, BirthDayValidationReply>();
+        _mqRpcReceiver = mqRpcReceiver;
 
         var httpHandler = new HttpClientHandler();
 

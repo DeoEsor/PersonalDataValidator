@@ -25,4 +25,8 @@
       <Folder Include="RPCSender" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    </ItemGroup>
+
 </Project>

@@ -1,16 +1,23 @@
 using NSPValidator.Services;
+using RabbitMQReceiver.Interfaces;
+using RabbitMQReceiver.RPCReceivers;
+using RabbitMQSender.Interfaces;
+using RabbitMQSender.Sender;
+using Validation.Mediator;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseKestrel();
+builder.Configuration.AddJsonFile("validatorsConfig.json", false, true);
 
-// Additional configuration is required to successfully run gRPC on macOS.
-// For instructions on how to configure Kestrel and gRPC clients on macOS, visit https://go.microsoft.com/fwlink/?linkid=2099682
-
-// Add services to the container.
 builder.Services.AddGrpc();
-builder.Services.AddSingleton<NSPValidatorRequestReceiver>();
+builder.Services.AddTransient<IMQRpcReceiver<NSPValidationRequest, NSPValidationReply>,
+    RpcReceiver<NSPValidationRequest, NSPValidationReply>>
+        (s => new RpcReceiver<NSPValidationRequest, NSPValidationReply>(builder.Configuration.GetSection("NSPValidator")));
+
+builder.Services.AddTransient<NSPValidatorRequestReceiver>();
 
 var app = builder.Build();
-
+var b =app.Services.GetService<NSPValidatorRequestReceiver>();
 // Configure the HTTP request pipeline.
 app.MapGrpcService<NSPValidatorService>();
 app.MapGet("/",

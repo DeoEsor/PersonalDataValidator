@@ -26,10 +26,20 @@ namespace Validation.ViewModels
         private Lazy<ICommand> _startValidationCommand;
 
         public ICommand AddCommand => _addCommand.Value;
+        public ICommand AddPhoneCommand { get; set; }
+        public ICommand AddEmailCommand { get; set; }
+        public ICommand AddAddressCommand { get; set; }
 
+        public ICommand DeletePhoneCommand { get; set; }
+        public ICommand DeleteEmailCommand { get; set; }
+        public ICommand DeleteAddressCommand { get; set; }
         public ICommand StartValidationCommand => _startValidationCommand.Value;
 
         public Card Card { get; set; }
+        
+        public string InputPhoneNumber { get; set; }
+        public string InputEmail { get; set; }
+        public string InputAddress { get; set; }
 
         public MainViewModel()
         {
@@ -45,16 +55,35 @@ namespace Validation.ViewModels
             _addCommand = new Lazy<ICommand>(() => new RelayCommand(_ => Add()));
             _startValidationCommand = new Lazy<ICommand>(() => new RelayCommand(
                 async _ => await StartValidationAsync()));
+            AddPhoneCommand = new RelayCommand(AddPhone);
+            AddEmailCommand = new RelayCommand(AddEmail);
+            AddAddressCommand = new RelayCommand(AddAddress);
         }
 
-        private void Add()
+        private void AddPhone(object _)
         {
-            Cards.Add((Card)Card.Clone());
+            if (!string.IsNullOrEmpty(InputPhoneNumber))
+                Card.PhoneNumber.Add((ValueIsValid<string>)InputPhoneNumber);
         }
+
+        private void AddAddress(object _)
+        {
+            if (!string.IsNullOrEmpty(InputAddress))
+                Card.Address.Add((ValueIsValid<string>)InputAddress);
+        }
+
+        private void AddEmail(object _)
+        {
+            if (!string.IsNullOrEmpty(InputEmail))
+                Card.Emails.Add((ValueIsValid<string>)InputEmail);
+        }
+
+        private void Add() 
+            => Cards.Add((Card)Card.Clone());
 
         private async Task StartValidationAsync()
         {
-            await _mediatorClient.ValidateCardsAsync(Cards);
+           var a = await _mediatorClient.ValidateCardsAsync(Cards);
         }
     }
 }

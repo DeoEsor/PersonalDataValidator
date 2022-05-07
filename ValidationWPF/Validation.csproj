@@ -6,6 +6,7 @@
         <TargetFramework>net5.0-windows</TargetFramework>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
+        <ApplicationIcon>Resources\emblema_mai.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>

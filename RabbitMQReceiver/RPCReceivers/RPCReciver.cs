@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Unicode;
+using Google.Protobuf;
 using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,7 +10,9 @@ using RabbitMQReceiver.Interfaces;
 
 namespace RabbitMQReceiver.RPCReceivers;
 
-public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> where TGet : class
+public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> 
+    where TGet : IMessage<TGet>, new()
+    where TSend : IMessage<TSend>
 {
     public IModel Channel { get; init; }
     public IConnection Connection { get; init; }
@@ -22,7 +25,7 @@ public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> where TGet :
         Close();
     }
 
-    public RpcReceiver(IConfiguration configuration = null, ILogger logger = null)
+    public RpcReceiver(IConfigurationSection configuration, ILogger logger = null)
     {
         Logger = logger;
         var factory = new ConnectionFactory()
@@ -34,13 +37,13 @@ public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> where TGet :
         Connection = factory.CreateConnection();
         Channel = Connection.CreateModel();
 
-        Channel.QueueDeclare("rpc_queue", false, false, false, null);
+        Channel.QueueDeclare(configuration.GetSection("QueueName").Value, false, false, false, null);
         Channel.BasicQos(0, 1, false);
 
         Consumer = new AsyncEventingBasicConsumer(Channel);
         Consumer.Received += OnReceived;
 
-        Channel.BasicConsume(configuration.GetSection("QueueName").Value ?? "rpc_queqe", false, Consumer);
+        Channel.BasicConsume(configuration.GetSection("QueueName").Value ?? "rpc_queue", false, Consumer);
     }
 
     private async Task OnReceived(object model, BasicDeliverEventArgs ea)
@@ -55,7 +58,8 @@ public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> where TGet :
         Console.WriteLine($"[] Recived {model}");
         try
         {
-            var message = (object)Encoding.UTF8.GetString(body.ToArray()) as TGet;
+            var a = new MessageParser<TGet>(() => new TGet());
+            var message = a.ParseFrom(body.ToArray());
             response = await RpcCalAsync(message!);
         }
         catch (Exception e)
@@ -65,7 +69,7 @@ public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> where TGet :
         }
         finally
         {
-            var responseBytes = Encoding.UTF8.GetBytes(response?.ToString() ?? string.Empty); //TODO: response to byte array
+            var responseBytes = response.ToByteArray();
             
             Channel.BasicPublish("", props.ReplyTo, replyProps, responseBytes);
             Channel.BasicAck(ea.DeliveryTag, false);

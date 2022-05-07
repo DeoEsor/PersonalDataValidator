@@ -1,7 +1,9 @@
 ﻿using Grpc.Net.Client;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using RabbitMQReceiver.Interfaces;
 using RabbitMQReceiver.RPCReceivers;
 using Validation.Mediator;
+// ReSharper disable InconsistentNaming
 
 // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
 
@@ -16,19 +18,22 @@ public class NSPValidatorRequestReceiver
 
     private readonly IMQRpcReceiver<NSPValidationRequest, NSPValidationReply> _mqRpcReceiver;
 
-    public NSPValidatorRequestReceiver(ILogger<NSPValidatorRequestReceiver> logger, 
-                                            IMQRpcReceiver<NSPValidationRequest, NSPValidationReply> mqRpcReceiver = null)
+    public NSPValidatorRequestReceiver(ILogger<NSPValidatorRequestReceiver> logger, IServiceProvider provider)
     {
+        
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _mqRpcReceiver = mqRpcReceiver ?? new RpcReceiver<NSPValidationRequest, NSPValidationReply>();
+        _mqRpcReceiver = provider.GetService<IMQRpcReceiver<NSPValidationRequest, NSPValidationReply>>() 
+                         ?? throw new ArgumentNullException($"{nameof(provider)} doesn't contains RPC receiver contract");
 
         var httpHandler = new HttpClientHandler();
 
         httpHandler.ServerCertificateCustomValidationCallback =
-            
             HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-
-        var channel = GrpcChannel.ForAddress("https://localhost:5001",
+        
+        
+        var channel = GrpcChannel
+            .ForAddress(provider.GetService<IConfiguration>().GetSection("NSPValidator").GetSection("gRPC Address").Value
+                ?? throw new ArgumentNullException($"Config doesn't contains gRPC endpoint"),
             new GrpcChannelOptions
             {
                 HttpHandler = httpHandler

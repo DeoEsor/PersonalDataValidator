@@ -8,7 +8,7 @@ public class NSPValidatorService : Validation.NSPValidator.NSPValidatorBase
 {
     private readonly ILogger<NSPValidatorService> _logger;
 
-    public NSPValidatorService(ILogger<NSPValidatorService> logger)
+    public NSPValidatorService(ILogger<NSPValidatorService> logger, NSPValidatorRequestReceiver rpc)
     {
         _logger = logger;
     }
@@ -19,13 +19,15 @@ public class NSPValidatorService : Validation.NSPValidator.NSPValidatorBase
         {
             var reply = new NSPValidationResult();
 
-            reply.Name.Value = request.Nsp.Name;
-            reply.Surname.Value = request.Nsp.Surname;
-            reply.Patronymic.Value = request.Nsp.Patronymic;
+            reply.Name = new StringValidationResult { Value =   request.Nsp.Name};
+            reply.Surname = new StringValidationResult { Value =   request.Nsp.Surname};
+            reply.Patronymic = new StringValidationResult { Value =   request.Nsp.Patronymic};
 
             reply.Name.IsValid = ValidateName(reply.Name.Value);
             reply.Surname.IsValid = ValidateName(reply.Surname.Value);
             reply.Patronymic.IsValid = ValidateName(reply.Patronymic.Value);
+            
+            _logger?.LogInformation($"Reply  with Name {reply.Name.Value} is {reply}");
 
             return new NSPValidationReply
             {

@@ -3,7 +3,8 @@
   {
     "HostName" : "localhost",
     "QueueName" : "NSPValidatorQueue",
-    "AllowedPort" : "*"
+    "AllowedPort" : "*",
+    "gRPC Address" : "http://localhost:5077"
   },
   "AddressValidator" :
   {

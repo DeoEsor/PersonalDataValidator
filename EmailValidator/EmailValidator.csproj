@@ -18,5 +18,13 @@
 
     <ItemGroup>
         <ProjectReference Include="..\RabbitMQReceiver\RabbitMQReceiver.csproj" />
+        <ProjectReference Include="..\RabbitMQSender\RabbitMQSender.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Link Include="..\Validation.Mediator\validatorsConfig.json" />
+        <Link Include="validatorsConfig.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Link>
     </ItemGroup>
 </Project>

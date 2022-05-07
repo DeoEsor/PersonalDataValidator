@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Runtime.Serialization;
 using System.Text;
 using Google.Protobuf;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +12,7 @@ namespace RabbitMQSender.Sender
 {
     public class MqRpcSender<TSend, TGet> : IRPCMQSender<TSend, TGet>
         where TGet : IMessage<TGet>, new()
-        where TSend : IMessage<TSend>
+        where TSend : IMessage<TSend>, new()
         
     {
         public ILogger Logger { get; set; }
@@ -27,14 +28,17 @@ namespace RabbitMQSender.Sender
 
         public event Action<TGet>? Recived;
 
-        public MqRpcSender(IConfiguration configuration, ILogger logger = null)
+        public MqRpcSender(IConfigurationSection configuration, ILogger logger)
         {
             Logger = logger;
-            var factory = new ConnectionFactory {HostName = "localhost", Port = 15672};
+            var factory = new ConnectionFactory {HostName = configuration.GetSection("HostName").Value};
 
             Connection = factory.CreateConnection();
             Channel = Connection.CreateModel();
-            ReplyQueueName = Channel.QueueDeclare().QueueName;
+            ReplyQueueName = Channel.
+                QueueDeclare(configuration.GetSection("QueueName").Value ?? queueName, durable: false,
+                    exclusive: false, autoDelete: false, arguments: null)
+                .QueueName;
 
             Consumer = new EventingBasicConsumer(Channel);
             Consumer.Received += OnReceived;
@@ -53,7 +57,7 @@ namespace RabbitMQSender.Sender
             props.ReplyTo = ReplyQueueName;
 
             var messageBytes = message.ToByteArray();
-            Channel.BasicPublish("", queueName, props, messageBytes);
+            Channel.BasicPublish("", ReplyQueueName, props, messageBytes);
             Channel.BasicConsume(consumer: Consumer, queue: ReplyQueueName, autoAck: true);
 
             cancellationToken.Register(() => CallbackMapper.TryRemove(correlationId, out _));
@@ -64,23 +68,48 @@ namespace RabbitMQSender.Sender
 
         private void OnReceived(object model, BasicDeliverEventArgs ea)
         {
-            Console.WriteLine($"Getted {ea.Body}");
             var suchTaskExists = CallbackMapper
                 .TryRemove(ea.BasicProperties.CorrelationId, out var tcs);
             
             if (!suchTaskExists) return;
             
-            tcs.TrySetResult(OnConfirmedReceived(model, ea));
+            tcs?.TrySetResult(OnConfirmedReceived(model, ea));
         }   
         
         private TGet OnConfirmedReceived(object model, BasicDeliverEventArgs ea)
         {
+            TGet response = default!;
             var body = ea.Body;
-            var a = new Google.Protobuf.MessageParser<TGet>(() => new TGet());
-            var response = a.ParseFrom(ea.Body.ToArray());
+            var parser = new MessageParser<TGet>(() => new TGet());
+            try
+            {
+                using (var ms = new MemoryStream())
+                {
+                    
+                    ms.Write(body.ToArray(), 0, body.Length);
+                    ms.Seek(0, SeekOrigin.Begin);
+                    response = parser.ParseFrom(body.ToArray());
+                }
 
-            Console.WriteLine(" [.] Got '{0}'", response);
-            Recived?.Invoke(response);
+                if (Logger == null)
+                    Console.WriteLine(" [.] Got '{0}'", response);
+                else
+                    Logger?.LogInformation(" [.] Got '{0}'", response);
+
+                Recived?.Invoke(response);
+            }
+            catch (Exception e)
+            {
+                if (Logger == null)
+                    Console.WriteLine("Parse Failed");
+                else
+                    Logger?.LogError("Parse Failed");
+                throw new SerializationException($"Cant parse {typeof(TGet)} from data");
+            }
+            finally
+            {
+                
+            }
             
             return response;
         }   

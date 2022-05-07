@@ -20,7 +20,7 @@ public class PhoneNumberValidatorRequestReceiver
                                             IMQRpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies> mqRpcReceiver = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _mqRpcReceiver = mqRpcReceiver ?? new RpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies>();
+        _mqRpcReceiver = mqRpcReceiver;
 
         var httpHandler = new HttpClientHandler();
 

@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf.Collections;
 using Grpc.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RabbitMQSender.Interfaces;
@@ -67,38 +68,56 @@ namespace Validation.Mediator.Services
             {
                 Nsp = request.Nsp
             };
-            
-            var nspTask = await mqNsp.CallAsync(nspValidationRequest, token);
 
             var BDValidationRequest = new BirthDayValidationRequest()
             {
                 BirthDay = request.Birthdate
             };
-            
-            var bdTask = await mqBirthDay.CallAsync(BDValidationRequest, token);
 
-            var emailTask = await EmailTask(request, token);
-            
-            var phoneTask = await PhonesTask(request, token);
-            
-            var addressTask = await AddressTask(request, token);
+            try
+            {
+                var nspTask = await mqNsp.CallAsync(nspValidationRequest, token);
+
+                var bdTask = await mqBirthDay.CallAsync(BDValidationRequest, token);
+                
+
+                var emailTask =
+                    request.Emails.Count == 0 ? new EmailValidationReplies() : await EmailTask(request, token);
+
+                var phoneTask =
+                    request.PhoneNumber.Count == 0
+                        ? new PhoneNumberValidationReplies()
+                        : await PhonesTask(request, token);
+
+                var addressTask =
+                    request.Address.Count == 0 ? new AddressValidationReplies{} : await AddressTask(request, token);
 
 
-            var emails = emailTask
-                .Emails
-                .Select(email => email.Email)
-                .ToList();
-            
-            var phoneNumbers = phoneTask
-                .PhoneNumbers
-                .Select(p => p.PhoneNumber)
-                .ToList();
-            var addresses = addressTask
-                .Addresses.
-                Select(address => address.Address)
-                .ToList();
+                var emails = emailTask
+                    .Emails
+                    .Select(email => email.Email)
+                    .ToList();
 
-            return Build(nspTask.Nsp, bdTask.BirthDay, addresses, emails, phoneNumbers);
+                var phoneNumbers = phoneTask
+                    .PhoneNumbers
+                    .Select(p => p.PhoneNumber)
+                    .ToList();
+                var addresses = addressTask
+                    .Addresses
+                    .Select(address => address.Address)
+                    .ToList();
+
+                return Build(nspTask.Nsp, bdTask.BirthDay, addresses, emails, phoneNumbers);
+            }
+            catch
+            {
+                return new RecordValidationResult();
+            }
+            finally
+            {
+                
+            }
+            
         }
 
         private RecordValidationResult Build(NSPValidationResult NSP, 

@@ -15,10 +15,11 @@ public class EmailValidatorRequestReciver
 
     private readonly IMQRpcReceiver<EmailValidationRequests, EmailValidationReplies> _mqRpcReceiver;
 
-    public EmailValidatorRequestReciver(ILogger<EmailValidatorRequestReciver> logger)
+    public EmailValidatorRequestReciver(ILogger<EmailValidatorRequestReciver> logger, 
+        IMQRpcReceiver<EmailValidationRequests, EmailValidationReplies> mqRpcReceiver)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _mqRpcReceiver = new RpcReceiver<EmailValidationRequests, EmailValidationReplies>();
+        _mqRpcReceiver =mqRpcReceiver;
 
         var httpHandler = new HttpClientHandler();
 

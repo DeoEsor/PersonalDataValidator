@@ -2,7 +2,10 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net.Http;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Models;
@@ -45,7 +48,7 @@ namespace Validation.Client.Proto
 
         #region Methods
 
-        public async Task ValidateCardsAsync(IEnumerable<Card> cardsToValidate, CancellationToken token = default)
+        public async Task<IEnumerable<Card>> ValidateCardsAsync(IEnumerable<Card> cardsToValidate, CancellationToken token = default)
         {
             try
             {
@@ -62,23 +65,51 @@ namespace Validation.Client.Proto
                             Surname = card.Surname,
                             Patronymic = card.Patronymic
                         },
-                        Birthdate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(card.BirthDay.ToUniversalTime())
+                        Birthdate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(card.BirthDay.Value.ToUniversalTime())
                     };
 
-                    cardRequest.Address.AddRange(card.Address);
-                    cardRequest.Emails.AddRange(card.Emails);
-                    cardRequest.PhoneNumber.AddRange(card.PhoneNumber);
+                    cardRequest.Address.AddRange(card.Address.Select(s => s.Value));
+                    cardRequest.Emails.AddRange(card.Emails.Select(s => s.Value));
+                    cardRequest.PhoneNumber.AddRange(card.PhoneNumber.Select(s => s.Value));
 
                     request.Records.Add(cardRequest);
                 }
 
                 var response = await _client.ValidateAsync(request, new Grpc.Core.CallOptions(cancellationToken: token));
                 if (response == null)
+                {
                     _logger?.LogInformation($"Response in null");
+                    throw new AuthenticationException($"Response in null");
+                }
+
+                var result = new List<Card>();
+                foreach (var recordValidation in response.Records)
+                    result.Add(
+                        new Card
+                        {
+                            Name = recordValidation.Nsp.Name.Value,
+                            NameValid = recordValidation.Nsp.Name.IsValid ? ValidState.True : ValidState.False,
+                            Surname = recordValidation.Nsp.Surname.Value,
+                            SurnameValid = recordValidation.Nsp.Surname.IsValid ? ValidState.True : ValidState.False,
+                            Patronymic = recordValidation.Nsp.Patronymic.Value,
+                            PatronymicValid = recordValidation.Nsp.Patronymic.IsValid ? ValidState.True : ValidState.False,
+                            
+                            Emails = new ObservableCollection<ValueIsValid<string>>(recordValidation.Emails
+                                .Select(s => new ValueIsValid<string>(s.Value, s.IsValid ? ValidState.True: ValidState.False))),
+                            PhoneNumber = new ObservableCollection<ValueIsValid<string>>(recordValidation.PhoneNumber
+                                .Select(s => new ValueIsValid<string>(s.Value, s.IsValid ? ValidState.True: ValidState.False))),
+                             Address= new ObservableCollection<ValueIsValid<string>>(recordValidation.Address
+                                .Select(s => new ValueIsValid<string>(s.Value, s.IsValid ? ValidState.True: ValidState.False))),
+                             
+                             BirthDay = new ValueIsValid<DateTime>(recordValidation.Birthdate.Value.ToDateTime(), recordValidation.Birthdate.IsValid  ? ValidState.True: ValidState.False)
+                        }
+                        );
+
+                return result;
             }
             catch (Exception ex)
             {
-                // ignored
+                return await Task.FromException<IEnumerable<Card>>(ex);
             }
         }
 

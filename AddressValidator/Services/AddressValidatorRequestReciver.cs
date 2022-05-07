@@ -16,10 +16,10 @@ public class AddressValidatorRequestReceiver
     private readonly IMQRpcReceiver<AddressValidationRequests, AddressValidationReplies> _mqRpcReceiver;
 
     public AddressValidatorRequestReceiver(ILogger<AddressValidatorRequestReceiver> logger, 
-                                            IMQRpcReceiver<AddressValidationRequests, AddressValidationReplies> mqRpcReceiver = null)
+                                            IMQRpcReceiver<AddressValidationRequests, AddressValidationReplies> mqRpcReceiver )
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _mqRpcReceiver = mqRpcReceiver ?? new RpcReceiver<AddressValidationRequests, AddressValidationReplies>();
+        _mqRpcReceiver = mqRpcReceiver;
 
         var httpHandler = new HttpClientHandler();
 
