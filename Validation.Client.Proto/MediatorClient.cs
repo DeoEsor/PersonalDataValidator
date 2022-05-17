@@ -61,9 +61,9 @@ namespace Validation.Client.Proto
                     {
                         Nsp = new NSP()
                         {
-                            Name = card.Name,
-                            Surname = card.Surname,
-                            Patronymic = card.Patronymic
+                            Name = card.Name.Value,
+                            Surname = card.Surname.Value,
+                            Patronymic = card.Patronymic.Value
                         },
                         Birthdate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(card.BirthDay.Value.ToUniversalTime())
                     };
@@ -82,17 +82,35 @@ namespace Validation.Client.Proto
                     throw new AuthenticationException($"Response in null");
                 }
 
+                if (response.Records == null || response.Records.Count == 0)
+                {
+                    _logger?.LogInformation($"Response records in null or empty");
+                    return await Task.FromException<IEnumerable<Card>>( new Exception("Response records in null or empty"));
+                }
+
                 var result = new List<Card>();
                 foreach (var recordValidation in response.Records)
                     result.Add(
                         new Card
                         {
-                            Name = recordValidation.Nsp.Name.Value,
-                            NameValid = recordValidation.Nsp.Name.IsValid ? ValidState.True : ValidState.False,
-                            Surname = recordValidation.Nsp.Surname.Value,
-                            SurnameValid = recordValidation.Nsp.Surname.IsValid ? ValidState.True : ValidState.False,
-                            Patronymic = recordValidation.Nsp.Patronymic.Value,
-                            PatronymicValid = recordValidation.Nsp.Patronymic.IsValid ? ValidState.True : ValidState.False,
+                            Name = new ValueIsValid<string>(
+                                recordValidation.Nsp.Name.Value,
+                                recordValidation.Nsp.Name.IsValid ? ValidState.True : ValidState.False)
+                            {
+                                Comment = recordValidation.Nsp.Name.Comment
+                            },
+                            Surname = new ValueIsValid<string>(
+                                recordValidation.Nsp.Surname.Value,
+                                recordValidation.Nsp.Surname.IsValid ? ValidState.True : ValidState.False)
+                            {
+                                Comment = recordValidation.Nsp.Surname.Comment
+                            },
+                            Patronymic =  new ValueIsValid<string>(
+                                recordValidation.Nsp.Patronymic.Value,
+                                recordValidation.Nsp.Patronymic.IsValid ? ValidState.True : ValidState.False)
+                            {
+                                Comment = recordValidation.Nsp.Patronymic.Comment
+                            },
                             
                             Emails = new ObservableCollection<ValueIsValid<string>>(recordValidation.Emails
                                 .Select(s => new ValueIsValid<string>(s.Value, s.IsValid ? ValidState.True: ValidState.False))),
