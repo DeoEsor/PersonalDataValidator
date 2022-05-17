@@ -30,23 +30,23 @@ namespace Validation.Mediator
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddGrpc();
-            services.AddTransient<IRPCMQSender<NSPValidationRequest, NSPValidationReply>,
+            services.AddSingleton<IRPCMQSender<NSPValidationRequest, NSPValidationReply>,
                 MqRpcSender<NSPValidationRequest, NSPValidationReply>>
                 (s =>
                     new MqRpcSender<NSPValidationRequest, NSPValidationReply>(Configuration.GetSection("NSPValidator"), s.GetService<ILogger>()));
-            services.AddTransient<IRPCMQSender<AddressValidationRequests, AddressValidationReplies>,
+            services.AddSingleton<IRPCMQSender<AddressValidationRequests, AddressValidationReplies>,
                 MqRpcSender<AddressValidationRequests, AddressValidationReplies>>
                 (s =>
                     new MqRpcSender<AddressValidationRequests, AddressValidationReplies>(Configuration.GetSection("AddressValidator"), s.GetService<ILogger>()));
-            services.AddTransient<IRPCMQSender<EmailValidationRequests, EmailValidationReplies>,
+            services.AddSingleton<IRPCMQSender<EmailValidationRequests, EmailValidationReplies>,
                 MqRpcSender<EmailValidationRequests, EmailValidationReplies>>
                 (s =>
                     new MqRpcSender<EmailValidationRequests, EmailValidationReplies>(Configuration.GetSection("EmailValidator"), s.GetService<ILogger>()));
-            services.AddTransient<IRPCMQSender<PhoneNumberValidationRequests, PhoneNumberValidationReplies>,
+            services.AddSingleton<IRPCMQSender<PhoneNumberValidationRequests, PhoneNumberValidationReplies>,
                 MqRpcSender<PhoneNumberValidationRequests, PhoneNumberValidationReplies>>
                 (s =>
                     new MqRpcSender<PhoneNumberValidationRequests, PhoneNumberValidationReplies>(Configuration.GetSection("PhoneNumberValidator"), s.GetService<ILogger>()));
-            services.AddTransient<IRPCMQSender<BirthDayValidationRequest, BirthDayValidationReply>,
+            services.AddSingleton<IRPCMQSender<BirthDayValidationRequest, BirthDayValidationReply>,
                 MqRpcSender<BirthDayValidationRequest, BirthDayValidationReply>>
                 (s =>
                     new MqRpcSender<BirthDayValidationRequest, BirthDayValidationReply>(Configuration.GetSection("BirthDayValidator"), s.GetService<ILogger>()));
