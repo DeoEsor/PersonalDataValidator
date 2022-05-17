@@ -18,10 +18,12 @@ namespace RabbitMQSender.Sender
         public ILogger Logger { get; set; }
         public IConnection Connection { get; init; }
         public IModel Channel { get; init; }
-        public string ReplyQueueName { get; init; }
         public IBasicProperties Properties { get; set; }
         public EventingBasicConsumer Consumer { get; init; }
-        private readonly string queueName = "rpc_queue";
+        
+        public string ReplyQueueName { get; init; }
+        
+        public string QueueName { get; init; }
 
         public ConcurrentDictionary<string, TaskCompletionSource<TGet>> CallbackMapper { get; init; }
             = new ConcurrentDictionary<string, TaskCompletionSource<TGet>>();
@@ -33,12 +35,11 @@ namespace RabbitMQSender.Sender
             Logger = logger;
             var factory = new ConnectionFactory {HostName = configuration.GetSection("HostName").Value};
 
+            QueueName = configuration.GetSection("QueueName").Value;
             Connection = factory.CreateConnection();
             Channel = Connection.CreateModel();
             ReplyQueueName = Channel.
-                QueueDeclare(configuration.GetSection("QueueName").Value ?? queueName, durable: false,
-                    exclusive: false, autoDelete: false, arguments: null)
-                .QueueName;
+                QueueDeclare().QueueName;
 
             Consumer = new EventingBasicConsumer(Channel);
             Consumer.Received += OnReceived;
@@ -46,7 +47,7 @@ namespace RabbitMQSender.Sender
 
         public Task<TGet> CallAsync(TSend message, CancellationToken cancellationToken = default)
         {
-            Logger?.LogInformation($" [x] Requesting {Channel.DefaultConsumer.Model} : ({0})", message);
+            Logger?.LogInformation($" [x] Requesting {Channel.DefaultConsumer.Model} : ({message})");
             
             var correlationId = Guid.NewGuid().ToString();
             var tcs = new TaskCompletionSource<TGet>();
@@ -58,7 +59,7 @@ namespace RabbitMQSender.Sender
 
             var messageBytes = message.ToByteArray();
             Channel.BasicPublish("", ReplyQueueName, props, messageBytes);
-            Channel.BasicConsume(consumer: Consumer, queue: ReplyQueueName, autoAck: true);
+            Channel.BasicConsume(consumer: Consumer, ReplyQueueName, autoAck: true);
 
             cancellationToken.Register(() => CallbackMapper.TryRemove(correlationId, out _));
             return tcs.Task;
@@ -104,7 +105,7 @@ namespace RabbitMQSender.Sender
                     Console.WriteLine("Parse Failed");
                 else
                     Logger?.LogError("Parse Failed");
-                throw new SerializationException($"Cant parse {typeof(TGet)} from data");
+                throw new SerializationException($"Cant parse {typeof(TGet)} from data {e.Data}");
             }
             finally
             {

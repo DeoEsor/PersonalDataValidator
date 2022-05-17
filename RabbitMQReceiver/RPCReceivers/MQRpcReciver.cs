@@ -10,7 +10,7 @@ using RabbitMQReceiver.Interfaces;
 
 namespace RabbitMQReceiver.RPCReceivers;
 
-public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> 
+public class MqRpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend> 
     where TGet : IMessage<TGet>, new()
     where TSend : IMessage<TSend>
 {
@@ -20,12 +20,13 @@ public class RpcReceiver<TGet, TSend> : IMQRpcReceiver<TGet, TSend>
     public  Func<TGet,CancellationToken, Task<TSend>>? RPC { get; set; }
     public ILogger Logger { get; set; }
     
-    ~RpcReceiver()
+    ~MqRpcReceiver()
     {
+        
         Close();
     }
 
-    public RpcReceiver(IConfigurationSection configuration, ILogger logger = null)
+    public MqRpcReceiver(IConfigurationSection configuration, ILogger logger = null)
     {
         Logger = logger;
         var factory = new ConnectionFactory()
