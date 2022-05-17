@@ -16,7 +16,8 @@ public class EmailValidatorRequestReciver
     private readonly IMQRpcReceiver<EmailValidationRequests, EmailValidationReplies> _mqRpcReceiver;
 
     public EmailValidatorRequestReciver(ILogger<EmailValidatorRequestReciver> logger, 
-        IMQRpcReceiver<EmailValidationRequests, EmailValidationReplies> mqRpcReceiver)
+        IMQRpcReceiver<EmailValidationRequests, EmailValidationReplies> mqRpcReceiver,
+        IServiceProvider provider)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _mqRpcReceiver =mqRpcReceiver;
@@ -27,11 +28,13 @@ public class EmailValidatorRequestReciver
             
             HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
 
-        var channel = GrpcChannel.ForAddress("https://localhost:5001",
-            new GrpcChannelOptions
-            {
-                HttpHandler = httpHandler
-            });
+        var channel = GrpcChannel
+            .ForAddress(provider.GetService<IConfiguration>().GetSection("EmailValidator").GetSection("gRPC Address").Value
+                        ?? throw new ArgumentNullException($"Config doesn't contains gRPC endpoint"),
+                new GrpcChannelOptions
+                {
+                    HttpHandler = httpHandler
+                });
 
         _client = new Validation.EmailValidator.EmailValidatorClient(channel);
         _mqRpcReceiver.RPC = ValidateAddressAsync;

@@ -6,19 +6,20 @@ using RabbitMQSender.Sender;
 using Validation.Mediator;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.WebHost.UseKestrel();
 builder.Configuration.AddJsonFile("validatorsConfig.json", false, true);
 
 // Add services to the container.
 builder.Services.AddGrpc();
-builder.Services.AddTransient<IMQRpcReceiver<EmailValidationRequests, EmailValidationReplies>,
-    RpcReceiver<EmailValidationRequests, EmailValidationReplies>>
+builder.Services.AddSingleton<IMQRpcReceiver<EmailValidationRequests, EmailValidationReplies>,
+    MqRpcReceiver<EmailValidationRequests, EmailValidationReplies>>
 (s =>
-    new RpcReceiver<EmailValidationRequests, EmailValidationReplies>(builder.Configuration.GetSection("EmailValidator")));
+    new MqRpcReceiver<EmailValidationRequests, EmailValidationReplies>(builder.Configuration.GetSection("EmailValidator")));
 builder.Services.AddSingleton<EmailValidatorRequestReciver>();
 
 var app = builder.Build();
 
+var b =app.Services.GetService<EmailValidatorRequestReciver>();
 // Configure the HTTP request pipeline.
 app.MapGrpcService<EmailValidatorService>();
 app.MapGet("/",

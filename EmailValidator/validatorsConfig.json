@@ -21,7 +21,8 @@
   {
     "HostName" : "localhost",
     "QueueName" : "EmailValidatorQueue",
-    "AllowedPort" : "*"
+    "AllowedPort" : "*",
+    "gRPC Address" : "http://localhost:5076"
   },
   "PhoneNumberValidator" :
   {
