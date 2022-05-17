@@ -9,7 +9,8 @@
   {
     "HostName" : "localhost",
     "QueueName" : "AddressValidatorQueue",
-    "AllowedPort" : "*"
+    "AllowedPort" : "*",
+    "gRPC Address" : "http://localhost:5075"
   },
   "BirthDayValidator" :
   {

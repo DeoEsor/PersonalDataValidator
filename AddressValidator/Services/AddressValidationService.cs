@@ -16,12 +16,25 @@ public class AddressValidationService : AddressValidatorGrpc.AddressValidatorBas
         _logger = logger;
     }
 
-    public override Task<AddressValidationReplies> Validate(AddressValidationRequests request, ServerCallContext context)
+    public override async Task<AddressValidationReplies> Validate(AddressValidationRequests request, ServerCallContext context)
     {
         try
         {
-           
-            
+            var res = new AddressValidationReplies();
+
+            foreach (var requestAddress in request.Addresses)
+                res.Addresses.Add(
+                    new AddressValidationReply
+                    {
+                        Address = new StringValidationResult
+                        {
+                            Value = requestAddress.Address,
+                            IsValid = true
+                        }
+                    }
+                );
+
+            return res;
         }
         catch (Exception e)
         {
@@ -29,6 +42,6 @@ public class AddressValidationService : AddressValidatorGrpc.AddressValidatorBas
             throw;
         }
 
-        return null!;
+        return default!;
     }
 }
