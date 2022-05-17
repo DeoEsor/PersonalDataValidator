@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Reflection;
 
 namespace Models
 {
-    public  class Card : ICloneable
+    public  class Card : ICloneable, IDataErrorInfo
     {
         private ValueIsValid<string> name = new ValueIsValid<string>(""), surname = new ValueIsValid<string>(""), patronymic = new ValueIsValid<string>("");
         
@@ -16,50 +18,35 @@ namespace Models
             Emails = new ObservableCollection<ValueIsValid<string>>();
             PhoneNumber = new ObservableCollection<ValueIsValid<string>>();
             Address = new ObservableCollection<ValueIsValid<string>>();
+            BirthDay = new ValueIsValid<DateTime>(DateTime.Today);
         }
 
-        public string Name
+        public ValueIsValid<string> Name
         {
-            get => name.Value;
+            get => name;
             set
             {
-                name.Value = value;
+                name.Value = value.Value;
                 name.State = ValidState.NotStated;
             }
         }
 
-        public ValidState NameValid
+        public ValueIsValid<string> Surname
         {
-            get => name.State;
-            set => name.State = value;
-        }
-        public ValidState SurnameValid
-        {
-            get => surname.State;
-            set => surname.State = value;
-        }
-        public ValidState PatronymicValid
-        {
-            get => patronymic.State;
-            set => patronymic.State = value;
-        }
-
-        public string Surname
-        {
-            get => surname.Value;
+            get => surname;
             set
             {
-                surname.Value = value;
+                surname.Value = value.Value;
                 surname.State = ValidState.NotStated;
             }
         }
 
-        public string Patronymic
+        public ValueIsValid<string> Patronymic
         {
-            get => patronymic.Value;
+            get => patronymic;
             set
             {
-                patronymic.Value = value;
+                patronymic.Value = value.Value;
                 patronymic.State = ValidState.NotStated;
             }
         }
@@ -97,5 +84,36 @@ namespace Models
                 Address = new ObservableCollection<ValueIsValid<string>>(Address.ToList()),
                 BirthDay = BirthDay
             };
+
+        public string Error { get; }
+
+        public string this[string columnName]
+        {
+            get
+            {
+                FieldInfo fi = typeof(Card).GetField(columnName);
+                object fieldValue = fi.GetValue(this);
+                
+                if (fieldValue is ValueIsValid<string> validString)
+                    if (validString.State == ValidState.NotStated)
+                    {
+                        if (validString.Error != String.Empty)
+                            return Error;
+                        
+                        return String.Empty;
+                        
+                    }
+                if (fieldValue is ValueIsValid<DateTime> validDate)
+                    if (validDate.State == ValidState.NotStated)
+                    {
+                        if (validDate.Error != String.Empty)
+                            return Error;
+                        
+                        return String.Empty;
+                    }
+                
+                return "Value is not valid";
+            }
+        }
     }
 }
