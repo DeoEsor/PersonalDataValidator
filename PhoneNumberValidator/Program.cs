@@ -6,20 +6,20 @@ using RabbitMQSender.Sender;
 using Validation.Mediator;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.WebHost.UseKestrel();
 builder.Configuration.AddJsonFile("validatorsConfig.json", false, true);
 
 // Add services to the container.
 builder.Services.AddGrpc();
-builder.Services.AddTransient<IMQRpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies>,
-    RpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies>>
+builder.Services.AddSingleton<IMQRpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies>,
+    MqRpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies>>
 (s =>
-    new RpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies>(builder.Configuration.GetSection("PhoneNumberValidator")));
+    new MqRpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies>(builder.Configuration.GetSection("PhoneNumberValidator")));
 builder.Services.AddSingleton<PhoneNumberValidatorRequestReceiver>();
 
 
 var app = builder.Build();
-
+var b =app.Services.GetService<PhoneNumberValidatorRequestReceiver>();
 // Configure the HTTP request pipeline.
 app.MapGrpcService<PhoneNumberValidatorService>();
 app.MapGet("/",

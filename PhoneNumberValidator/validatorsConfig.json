@@ -27,6 +27,7 @@
   {
     "HostName" : "localhost",
     "QueueName" : "PhoneNumberValidatorQueue",
-    "AllowedPort" : "*"
+    "AllowedPort" : "*",
+    "gRPC Address" : "http://localhost:5078"
   }
 }

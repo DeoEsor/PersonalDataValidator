@@ -17,7 +17,8 @@ public class PhoneNumberValidatorRequestReceiver
     private readonly IMQRpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies> _mqRpcReceiver;
 
     public PhoneNumberValidatorRequestReceiver(ILogger<PhoneNumberValidatorRequestReceiver> logger, 
-                                            IMQRpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies> mqRpcReceiver = null)
+                                            IMQRpcReceiver<PhoneNumberValidationRequests, PhoneNumberValidationReplies> mqRpcReceiver,
+                                            IServiceProvider provider)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _mqRpcReceiver = mqRpcReceiver;
@@ -28,11 +29,13 @@ public class PhoneNumberValidatorRequestReceiver
             
             HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
 
-        var channel = GrpcChannel.ForAddress("https://localhost:5001",
-            new GrpcChannelOptions
-            {
-                HttpHandler = httpHandler
-            });
+        var channel = GrpcChannel
+            .ForAddress(provider.GetService<IConfiguration>().GetSection("PhoneNumberValidator").GetSection("gRPC Address").Value
+                        ?? throw new ArgumentNullException($"Config doesn't contains gRPC endpoint"),
+                new GrpcChannelOptions
+                {
+                    HttpHandler = httpHandler
+                });
 
         _client = new Validation.PhoneNumberValidator.PhoneNumberValidatorClient(channel);
         _mqRpcReceiver.RPC = ValidateAddressAsync;
