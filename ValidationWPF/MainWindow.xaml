@@ -28,6 +28,7 @@
                         <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
@@ -41,73 +42,91 @@
                         Grid.Column="0"
                         Grid.Row="1"
                         Text="Имя:" />
-                    <TextBlock
-                        Grid.Column="1"
-                        Grid.Row="1"
-                        Text="{Binding Name, Mode=OneWay}" />
+                    <TextBlock Grid.Column="1" Grid.Row="1">
+                        <TextBlock.Text>
+                            <Binding Path="Name.Value">
+                                <Binding.ValidationRules>
+                                    <DataErrorValidationRule />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBlock.Text>
+                    </TextBlock>
                     <TextBlock
                         Grid.Column="0"
                         Grid.Row="3"
                         Text="Фамилия:" />
-                    <TextBlock
-                        Grid.Column="1"
-                        Grid.Row="3"
-                        Text="{Binding Surname, Mode=OneWay}" />
+                    <TextBlock Grid.Column="1" Grid.Row="3">
+                        <TextBlock.Text>
+                            <Binding Path="Surname.Value">
+                                <Binding.ValidationRules>
+                                    <DataErrorValidationRule />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBlock.Text>
+                    </TextBlock>
                     <TextBlock
                         Grid.Column="0"
                         Grid.Row="5"
                         Text="Отчество:" />
-                    <TextBlock
-                        Grid.Column="1"
-                        Grid.Row="5"
-                        Text="{Binding Patronymic, Mode=OneWay}" />
-                    <TextBlock
-                        Grid.Column="0"
-                        Grid.Row="6"
-                        Text="Почтовые адреса:" />
-                    <ListBox
-                        Background="Azure"
-                        Grid.Column="1"
-                        Grid.Row="6"
-                        HorizontalContentAlignment="Center"
-                        ItemsSource="{Binding Emails}" />
+                    <TextBlock Grid.Column="1" Grid.Row="5">
+                        <TextBlock.Text>
+                            <Binding Path="Patronymic.Value">
+                                <Binding.ValidationRules>
+                                    <DataErrorValidationRule />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBlock.Text>
+                    </TextBlock>
                     <TextBlock
                         Grid.Column="0"
                         Grid.Row="6"
+                        Text="Дата Рождения:" />
+                    <TextBlock Grid.Column="1" Grid.Row="6">
+                        <TextBlock.Text>
+                            <Binding Path="BirthDay.Value">
+                                <Binding.ValidationRules>
+                                    <DataErrorValidationRule />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <TextBlock
+                        Grid.Column="0"
+                        Grid.Row="7"
                         Text="Почтовые адреса:" />
                     <ListBox
                         Background="Azure"
                         DisplayMemberPath="Value"
                         Grid.Column="1"
-                        Grid.Row="6"
+                        Grid.Row="7"
                         HorizontalContentAlignment="Center"
                         ItemsSource="{Binding Emails}" />
                     <TextBlock
                         Grid.Column="0"
-                        Grid.Row="7"
+                        Grid.Row="8"
                         Text="Адреса:" />
                     <ListBox
                         Background="Azure"
                         DisplayMemberPath="Value"
                         Grid.Column="1"
-                        Grid.Row="7"
+                        Grid.Row="8"
                         HorizontalContentAlignment="Center"
                         ItemsSource="{Binding Address}" />
                     <TextBlock
                         Grid.Column="0"
-                        Grid.Row="8"
+                        Grid.Row="9"
                         Text="Номера телефонов:" />
                     <ListBox
                         Background="Azure"
                         DisplayMemberPath="Value"
                         Grid.Column="1"
-                        Grid.Row="8"
+                        Grid.Row="9"
                         HorizontalContentAlignment="Center"
                         ItemsSource="{Binding PhoneNumber}" />
                     <Separator
                         Grid.Column="0"
                         Grid.ColumnSpan="2"
-                        Grid.Row="9" />
+                        Grid.Row="10" />
                 </Grid>
             </DataTemplate>
         </ResourceDictionary>
@@ -150,6 +169,7 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
                 <RowDefinition />
+                <RowDefinition />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -178,7 +198,7 @@
                 Grid.Column="1"
                 Grid.Row="1"
                 HorizontalContentAlignment="Center"
-                Text="{Binding Card.Name, UpdateSourceTrigger=PropertyChanged}"
+                Text="{Binding Card.Name.Value, UpdateSourceTrigger=PropertyChanged}"
                 VerticalAlignment="Top"
                 VerticalContentAlignment="Center" />
             <TextBlock
@@ -192,7 +212,7 @@
                 Grid.Column="3"
                 Grid.Row="1"
                 HorizontalContentAlignment="Center"
-                Text="{Binding Card.Surname, UpdateSourceTrigger=PropertyChanged}"
+                Text="{Binding Card.Surname.Value, UpdateSourceTrigger=PropertyChanged}"
                 VerticalAlignment="Top"
                 VerticalContentAlignment="Center" />
             <TextBlock
@@ -206,15 +226,29 @@
                 Grid.Column="5"
                 Grid.Row="1"
                 HorizontalContentAlignment="Center"
-                Text="{Binding Card.Patronymic, UpdateSourceTrigger=PropertyChanged}"
+                Text="{Binding Card.Patronymic.Value, UpdateSourceTrigger=PropertyChanged}"
                 VerticalAlignment="Top"
                 VerticalContentAlignment="Center" />
+            <TextBlock
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Grid.Row="2"
+                Padding="10,0,0,0"
+                Text="Дата Рождения:"
+                VerticalAlignment="Top" />
+            <DatePicker
+                Background="Azure"
+                Grid.Column="3"
+                Grid.ColumnSpan="2"
+                Grid.Row="2"
+                SelectedDate="{Binding Card.BirthDay.Value, UpdateSourceTrigger=PropertyChanged}"
+                SelectedDateFormat="Short" />
             <!--  Коллекции  -->
             <!--  Переделать под элемент управления  -->
             <TextBlock
                 Grid.Column="0"
                 Grid.ColumnSpan="2"
-                Grid.Row="2"
+                Grid.Row="3"
                 Grid.RowSpan="2"
                 Padding="10"
                 Text="Почтовые адреса:" />
@@ -222,7 +256,7 @@
                 Background="Azure"
                 Grid.Column="2"
                 Grid.ColumnSpan="2"
-                Grid.Row="2"
+                Grid.Row="3"
                 HorizontalContentAlignment="Center"
                 Text="{Binding InputEmail, UpdateSourceTrigger=PropertyChanged}"
                 VerticalContentAlignment="Center" />
@@ -231,7 +265,7 @@
                 Content="Добавить"
                 Grid.Column="2"
                 Grid.ColumnSpan="2"
-                Grid.Row="3"
+                Grid.Row="4"
                 Margin="3"
                 Style="{DynamicResource RoundCorner}" />
 
@@ -240,7 +274,7 @@
                 DisplayMemberPath="Value"
                 Grid.Column="4"
                 Grid.ColumnSpan="2"
-                Grid.Row="2"
+                Grid.Row="3"
                 HorizontalContentAlignment="Center"
                 ItemsSource="{Binding Card.Emails, UpdateSourceTrigger=PropertyChanged}"
                 Name="EmailsList" />
@@ -249,14 +283,14 @@
                 Content="Удалить выделенную запись"
                 Grid.Column="4"
                 Grid.ColumnSpan="2"
-                Grid.Row="3"
+                Grid.Row="4"
                 Margin="3"
                 Style="{DynamicResource RoundCorner}" />
 
             <TextBlock
                 Grid.Column="0"
                 Grid.ColumnSpan="2"
-                Grid.Row="4"
+                Grid.Row="5"
                 Grid.RowSpan="2"
                 Padding="10"
                 Text="Физические адреса:" />
@@ -264,7 +298,7 @@
                 Background="Azure"
                 Grid.Column="2"
                 Grid.ColumnSpan="2"
-                Grid.Row="4"
+                Grid.Row="5"
                 HorizontalContentAlignment="Center"
                 Text="{Binding InputAddress, UpdateSourceTrigger=PropertyChanged}"
                 VerticalContentAlignment="Center" />
@@ -273,7 +307,7 @@
                 Content="Добавить"
                 Grid.Column="2"
                 Grid.ColumnSpan="2"
-                Grid.Row="5"
+                Grid.Row="6"
                 Margin="3"
                 Style="{DynamicResource RoundCorner}" />
             <ListBox
@@ -281,7 +315,7 @@
                 DisplayMemberPath="Value"
                 Grid.Column="4"
                 Grid.ColumnSpan="2"
-                Grid.Row="4"
+                Grid.Row="5"
                 HorizontalContentAlignment="Center"
                 ItemsSource="{Binding Card.Address, UpdateSourceTrigger=PropertyChanged}"
                 Name="AddressesList" />
@@ -290,14 +324,14 @@
                 Content="Удалить выделенную запись"
                 Grid.Column="4"
                 Grid.ColumnSpan="2"
-                Grid.Row="5"
+                Grid.Row="6"
                 Margin="3"
                 Style="{DynamicResource RoundCorner}" />
 
             <TextBlock
                 Grid.Column="0"
                 Grid.ColumnSpan="2"
-                Grid.Row="6"
+                Grid.Row="7"
                 Grid.RowSpan="2"
                 Padding="10"
                 Text="Номера телефонов:" />
@@ -305,7 +339,7 @@
                 Background="Azure"
                 Grid.Column="2"
                 Grid.ColumnSpan="2"
-                Grid.Row="6"
+                Grid.Row="7"
                 HorizontalContentAlignment="Center"
                 Text="{Binding InputPhoneNumber, UpdateSourceTrigger=PropertyChanged}"
                 VerticalContentAlignment="Center" />
@@ -314,7 +348,7 @@
                 Content="Добавить"
                 Grid.Column="2"
                 Grid.ColumnSpan="2"
-                Grid.Row="7"
+                Grid.Row="8"
                 Margin="3"
                 Style="{DynamicResource RoundCorner}" />
             <ListBox
@@ -322,7 +356,7 @@
                 DisplayMemberPath="Value"
                 Grid.Column="4"
                 Grid.ColumnSpan="2"
-                Grid.Row="6"
+                Grid.Row="7"
                 HorizontalContentAlignment="Center"
                 ItemsSource="{Binding Card.PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
                 x:Name="PhoneNumbersList" />
@@ -331,7 +365,7 @@
                 Content="Удалить выделенную запись"
                 Grid.Column="4"
                 Grid.ColumnSpan="2"
-                Grid.Row="7"
+                Grid.Row="8"
                 Margin="3"
                 Style="{DynamicResource RoundCorner}" />
         </Grid>

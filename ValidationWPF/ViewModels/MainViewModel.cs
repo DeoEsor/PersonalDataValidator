@@ -47,9 +47,9 @@ namespace Validation.ViewModels
 
             Card = new Card
             {
-                Name = "Вася",
-                Surname = "Пупкин",
-                Patronymic = "Петрович"
+                Name =  (ValueIsValid<string>)"Вася",
+                Surname = (ValueIsValid<string>)"Пупкин",
+                Patronymic = (ValueIsValid<string>)"Петрович"
             };
 
             _addCommand = new Lazy<ICommand>(() => new RelayCommand(_ => Add()));
