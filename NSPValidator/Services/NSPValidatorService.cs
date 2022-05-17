@@ -19,9 +19,9 @@ public class NSPValidatorService : Validation.NSPValidator.NSPValidatorBase
         {
             var reply = new NSPValidationResult();
 
-            reply.Name = new StringValidationResult { Value =   request.Nsp.Name};
-            reply.Surname = new StringValidationResult { Value =   request.Nsp.Surname};
-            reply.Patronymic = new StringValidationResult { Value =   request.Nsp.Patronymic};
+            reply.Name = new StringValidationResult { Value =   request.Nsp.Name.Split().First()};
+            reply.Surname = new StringValidationResult { Value =   request.Nsp.Surname.Split().First()};
+            reply.Patronymic = new StringValidationResult { Value =  request.Nsp.Patronymic.Split().First()};
 
             reply.Name.IsValid = ValidateName(reply.Name.Value);
             reply.Surname.IsValid = ValidateName(reply.Surname.Value);

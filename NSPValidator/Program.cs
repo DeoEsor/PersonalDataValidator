@@ -10,11 +10,11 @@ builder.WebHost.UseKestrel();
 builder.Configuration.AddJsonFile("validatorsConfig.json", false, true);
 
 builder.Services.AddGrpc();
-builder.Services.AddTransient<IMQRpcReceiver<NSPValidationRequest, NSPValidationReply>,
-    RpcReceiver<NSPValidationRequest, NSPValidationReply>>
-        (s => new RpcReceiver<NSPValidationRequest, NSPValidationReply>(builder.Configuration.GetSection("NSPValidator")));
+builder.Services.AddSingleton<IMQRpcReceiver<NSPValidationRequest, NSPValidationReply>,
+    MqRpcReceiver<NSPValidationRequest, NSPValidationReply>>
+        (s => new MqRpcReceiver<NSPValidationRequest, NSPValidationReply>(builder.Configuration.GetSection("NSPValidator")));
 
-builder.Services.AddTransient<NSPValidatorRequestReceiver>();
+builder.Services.AddSingleton<NSPValidatorRequestReceiver>();
 
 var app = builder.Build();
 var b =app.Services.GetService<NSPValidatorRequestReceiver>();

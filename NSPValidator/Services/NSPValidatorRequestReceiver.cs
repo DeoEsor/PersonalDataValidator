@@ -18,11 +18,15 @@ public class NSPValidatorRequestReceiver
 
     private readonly IMQRpcReceiver<NSPValidationRequest, NSPValidationReply> _mqRpcReceiver;
 
-    public NSPValidatorRequestReceiver(ILogger<NSPValidatorRequestReceiver> logger, IServiceProvider provider)
+    public NSPValidatorRequestReceiver(ILogger<NSPValidatorRequestReceiver> logger,
+        IMQRpcReceiver<NSPValidationRequest, NSPValidationReply> mqRpcReceiver,
+        IServiceProvider provider)
     {
         
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _mqRpcReceiver = provider.GetService<IMQRpcReceiver<NSPValidationRequest, NSPValidationReply>>() 
+        _logger = logger 
+                  ?? throw new ArgumentNullException(nameof(logger));
+        
+        _mqRpcReceiver = mqRpcReceiver 
                          ?? throw new ArgumentNullException($"{nameof(provider)} doesn't contains RPC receiver contract");
 
         var httpHandler = new HttpClientHandler();
