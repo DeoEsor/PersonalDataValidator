@@ -7,19 +7,20 @@ using RabbitMQSender.Sender;
 using Validation.Mediator;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.WebHost.UseKestrel();
 builder.Configuration.AddJsonFile("validatorsConfig.json", false, true);
 
 // Add services to the container.
 builder.Services.AddGrpc();
-builder.Services.AddTransient<IMQRpcReceiver<BirthDayValidationRequest, BirthDayValidationReply>,
+builder.Services.AddSingleton<IMQRpcReceiver<BirthDayValidationRequest, BirthDayValidationReply>,
     IMQRpcReceiver<BirthDayValidationRequest, BirthDayValidationReply>>
 (s =>
-    new RpcReceiver<BirthDayValidationRequest, BirthDayValidationReply>(builder.Configuration.GetSection("BirthDayValidator")));
+    new MqRpcReceiver<BirthDayValidationRequest, BirthDayValidationReply>(builder.Configuration.GetSection("BirthDayValidator")));
 builder.Services.AddSingleton<BirthDayValidatorRequestReceiver>();
 
 var app = builder.Build();
 
+var b =app.Services.GetService<BirthDayValidatorRequestReceiver>();
 // Configure the HTTP request pipeline.
 app.MapGrpcService<BirthDayValidatonService>();
 app.MapGet("/",

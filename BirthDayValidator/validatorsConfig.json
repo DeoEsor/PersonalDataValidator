@@ -15,7 +15,8 @@
   {
     "HostName" : "localhost",
     "QueueName" : "BirthDayValidatorQueue",
-    "AllowedPort" : "*"
+    "AllowedPort" : "*",
+    "gRPC Address" : "http://localhost:5070"
   },
   "EmailValidator" :
   {
